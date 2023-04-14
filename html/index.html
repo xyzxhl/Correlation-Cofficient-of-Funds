@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+    <title>test</title>
+  </head>
+  <body>
+    <script>
+      var IndicesList = new Array();
+      var SelectedIndices = new Array();
+      var httpRequest = new XMLHttpRequest();
+
+      function GetIndicesData() {
+        httpRequest.open("GET", "http://127.0.0.1/QueryIndices", false);
+        httpRequest.send();
+        var json = httpRequest.responseText;
+        IndicesList = JSON.parse(json).indices;
+        for (var i = 0; i < IndicesList.length; i++) {
+          IndicesList[i].earliest_date = IndicesList[i].earliest_date.substr(
+            0,
+            10
+          );
+        }
+      }
+
+      function AddIndice() {
+        if (IndicesList.length > 10) {
+          return;
+        }
+        if (IndicesList.length == 0) {
+          GetIndicesData();
+        }
+        var SN = document.getElementById("SN").value;
+        for (var i = 0; i < IndicesList.length; i++) {
+          if (SN == IndicesList[i].name || SN == IndicesList[i].symbol) {
+            for (var j = 0; j < SelectedIndices.length; j++) {
+              if (IndicesList[i].symbol == SelectedIndices[j].symbol) {
+                return;
+              }
+            }
+            SelectedIndices.push(IndicesList[i]);
+            UpdateIndicesShown();
+            return;
+          }
+        }
+      }
+
+      function DelInd(symbol) {
+        for (var i = 0; i < SelectedIndices.length; i++) {
+          if (symbol == SelectedIndices[i].symbol) {
+            SelectedIndices.splice(i, 1);
+          }
+        }
+        UpdateIndicesShown();
+      }
+
+      function UpdateIndicesShown() {
+        var str = "";
+        for (var i = 0; i < SelectedIndices.length; i++) {
+          str += "<tr>";
+          for (var key in SelectedIndices[i]) {
+            str += "<td>" + SelectedIndices[i][key] + "</td>";
+          }
+          str +=
+            '<td><a href="javascript:void(0);"onclick="DelInd(\'' +
+            SelectedIndices[i].symbol +
+            "')\">删除</a></td></tr>";
+        }
+        contain.innerHTML = str;
+      }
+
+      function GetChangeData() {
+        httpRequest.open("GET", "http://127.0.0.1/Changes", false);
+        httpRequest.send();
+        var json = httpRequest.responseText;
+
+      }
+    </script>
+
+    <div>
+      <input type="text" id="SN" placeholder="请输入基金的代码或名称" />
+      <input type="button" onclick="AddIndice()" value="添加" />
+    </div>
+    <table border="1" cellpadding="10">
+      <tr>
+        <th>代码</th>
+        <th>名称</th>
+        <th>最早记录日期</th>
+        <th>操作</th>
+      </tr>
+      <tbody id="contain"></tbody>
+    </table>
+    <div>
+      起始日期:<input type="date" id="sDate" value="2022-03-01" /><br />
+      结束日期:<input type="date" id="eDate" value="2023-03-01" /><br />
+      <input type="button" onclick="GetChangeData()" value="计算相关系数" />
+    </div>
+  </body>
+</html>
