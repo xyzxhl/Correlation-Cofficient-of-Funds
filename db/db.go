@@ -49,3 +49,30 @@ func FINameGetAll() (pj.IndicesData, error) {
 
 	return IndicesData, nil
 }
+
+func CHRecordQuery(sd string, ed string, symbols []string) ([][]interface{}, error) {
+	var RawData [][]interface{}
+	inst := "SELECT * FROM CHRecord WHERE date BETWEEN '" + sd + "' AND '" + ed + "' AND symbol IN ('"
+	for i, symbol := range symbols {
+		if i != len(symbols)-1 {
+			inst += symbol + "','"
+		} else {
+			inst += symbol + "')"
+		}
+	}
+
+	rows, err := db.Query(inst)
+	if err != nil {
+		return RawData, err
+	}
+
+	var tmp = make([]interface{}, 4)
+	for rows.Next() {
+		if err := rows.Scan(&tmp[0], &tmp[1], &tmp[2], &tmp[3]); err != nil {
+			continue
+		}
+		RawData = append(RawData, tmp)
+	}
+
+	return RawData, nil
+}

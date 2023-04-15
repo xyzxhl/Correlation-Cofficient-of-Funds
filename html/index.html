@@ -25,7 +25,7 @@
       }
 
       function AddIndice() {
-        if (IndicesList.length > 10) {
+        if (SelectedIndices.length > 10) {
           return;
         }
         if (IndicesList.length == 0) {
@@ -71,10 +71,19 @@
       }
 
       function GetChangeData() {
-        httpRequest.open("GET", "http://127.0.0.1/Changes", false);
+        var sd = document.getElementById("StartDate").value;
+        var ed = document.getElementById("EndDate").value;
+        var symbols = "";
+        for (var i = 0; i < SelectedIndices.length; i++) {
+          symbols += SelectedIndices[i].symbol;
+          if (i != SelectedIndices.length - 1) {
+            symbols += ",";
+          }
+        }
+        var url = "/QueryChanges?sd=" + sd + "&ed=" + ed + "&sym=" + symbols;
+        httpRequest.open("GET", url, false);
         httpRequest.send();
         var json = httpRequest.responseText;
-
       }
     </script>
 
@@ -92,8 +101,8 @@
       <tbody id="contain"></tbody>
     </table>
     <div>
-      起始日期:<input type="date" id="sDate" value="2022-03-01" /><br />
-      结束日期:<input type="date" id="eDate" value="2023-03-01" /><br />
+      起始日期:<input type="date" id="StartDate" value="2022-03-01" /><br />
+      结束日期:<input type="date" id="EndDate" value="2023-03-01" /><br />
       <input type="button" onclick="GetChangeData()" value="计算相关系数" />
     </div>
   </body>
