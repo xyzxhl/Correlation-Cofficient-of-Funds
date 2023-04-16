@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"server/pj"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -11,6 +12,12 @@ type MultInit struct{}
 
 func (MultInit) Error() string {
 	return "Multiple initializations"
+}
+
+type Record struct {
+	Date    time.Time
+	Percent float32
+	Close   float32
 }
 
 var (
@@ -50,8 +57,8 @@ func FINameGetAll() (pj.IndicesData, error) {
 	return IndicesData, nil
 }
 
-func CHRecordQuery(sd string, ed string, symbols []string) ([][]interface{}, error) {
-	var RawData [][]interface{}
+func CHRecordQuery(sd string, ed string, symbols []string) (map[string][]Record, error) {
+	var RawData = make(map[string][]Record)
 	inst := "SELECT * FROM CHRecord WHERE date BETWEEN '" + sd + "' AND '" + ed + "' AND symbol IN ('"
 	for i, symbol := range symbols {
 		if i != len(symbols)-1 {
@@ -66,12 +73,13 @@ func CHRecordQuery(sd string, ed string, symbols []string) ([][]interface{}, err
 		return RawData, err
 	}
 
-	var tmp = make([]interface{}, 4)
+	var tmp Record
+	var sym string
 	for rows.Next() {
-		if err := rows.Scan(&tmp[0], &tmp[1], &tmp[2], &tmp[3]); err != nil {
+		if err := rows.Scan(&sym, &tmp.Date, &tmp.Percent, &tmp.Close); err != nil {
 			continue
 		}
-		RawData = append(RawData, tmp)
+		RawData[sym] = append(RawData[sym], tmp)
 	}
 
 	return RawData, nil
