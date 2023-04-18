@@ -68,28 +68,31 @@ func GetCorData(sd string, ed string, sym string) pj.CorData {
 	return CorData
 }
 
+func SendCorMat(c *gin.Context) {
+	sd, ok1 := c.GetQuery("sd")
+	ed, ok2 := c.GetQuery("ed")
+	sym, ok3 := c.GetQuery("sym")
+	if ok1 && ok2 && ok3 {
+		c.JSON(http.StatusOK, GetCorData(sd, ed, sym))
+	}
+}
+
 func main() {
 	Init()
 
 	r := gin.Default()
 	r.LoadHTMLFiles("html/index.html")
+	r.StaticFile("/favicon.ico", "./favicon.ico")
 
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{})
 	})
 
-	r.GET("/QueryIndices", func(c *gin.Context) {
+	r.GET("/IndicesList", func(c *gin.Context) {
 		c.JSON(http.StatusOK, IndicesData)
 	})
 
-	r.GET("/QueryChanges", func(c *gin.Context) {
-		sd, ok1 := c.GetQuery("sd")
-		ed, ok2 := c.GetQuery("ed")
-		sym, ok3 := c.GetQuery("sym")
-		if ok1 && ok2 && ok3 {
-			c.JSON(http.StatusOK, GetCorData(sd, ed, sym))
-		}
-	})
+	r.GET("/CorMat", SendCorMat)
 
 	r.Run(":80")
 }
