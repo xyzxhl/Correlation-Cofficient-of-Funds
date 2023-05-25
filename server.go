@@ -25,6 +25,9 @@ func GetChangeMat(sd string, ed string, symbols []string, RawData map[string][]d
 	dur := int(et.Sub(st).Hours()/24) + 1
 	changeMat := make(map[string][]float32)
 	for _, symbol := range symbols {
+		if len(RawData[symbol]) != dur {
+			continue
+		}
 		changeMat[symbol] = make([]float32, dur)
 		for i, Record := range RawData[symbol] {
 			changeMat[symbol][i] = Record.Percent
@@ -34,7 +37,7 @@ func GetChangeMat(sd string, ed string, symbols []string, RawData map[string][]d
 }
 
 func CalVar(X []float32, Y []float32) float32 {
-	if len(X) != len(Y) {
+	if len(X) != len(Y) || len(X) == 0 || len(Y) == 0 {
 		return 1000
 	}
 	var sx, sy, sxy float32

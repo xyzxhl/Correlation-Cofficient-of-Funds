@@ -17,7 +17,6 @@ func (MultInit) Error() string {
 type Record struct {
 	Date    time.Time
 	Percent float32
-	Close   float32
 }
 
 var (
@@ -30,7 +29,7 @@ func InitDB() error {
 		return mi
 	}
 
-	tmp, err := sql.Open("mysql", "root:12345678@tcp(47.120.8.50:3306)/FundsAndIndices?parseTime=true")
+	tmp, err := sql.Open("mysql", "root:12345678@tcp(47.120.8.50:3306)/Funds_Indices?parseTime=true")
 	if err != nil {
 		return err
 	}
@@ -76,7 +75,7 @@ func CHRecordQuery(sd string, ed string, symbols []string) (map[string][]Record,
 	var tmp Record
 	var sym string
 	for rows.Next() {
-		if err := rows.Scan(&sym, &tmp.Date, &tmp.Percent, &tmp.Close); err != nil {
+		if err := rows.Scan(&sym, &tmp.Date, &tmp.Percent); err != nil {
 			continue
 		}
 		RawData[sym] = append(RawData[sym], tmp)
