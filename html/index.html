@@ -12,7 +12,7 @@
       var httpRequest = new XMLHttpRequest();
 
       function GetIndicesData() {
-        httpRequest.open("GET", "http://127.0.0.1/IndicesList", false);
+        httpRequest.open("GET", "http://47.120.8.50/IndicesList", false);
         httpRequest.send();
         var json = httpRequest.responseText;
         IndicesList = JSON.parse(json).indices;
@@ -80,10 +80,34 @@
             symbols += ",";
           }
         }
-        var url = "http://127.0.0.1/CorMat?sd=" + sd + "&ed=" + ed + "&sym=" + symbols;
+        var url =
+          "http://47.120.8.50/CorMat?sd=" +
+          sd +
+          "&ed=" +
+          ed +
+          "&sym=" +
+          symbols;
         httpRequest.open("GET", url, false);
         httpRequest.send();
-        var json = httpRequest.responseText;
+        var corData = JSON.parse(httpRequest.responseText);
+        var corMat = corData.cor_mat;
+        var symbols = corData.symbols;
+        var tbody = document.getElementById("correlation-table-body");
+
+        // 遍历相关系数数据并将其添加到表格中
+        for (var i = 0; i < corMat.length; i++) {
+          var row = document.createElement("tr");
+          var col1 = document.createElement("td");
+          col1.innerHTML = corMat[i].correlation;
+          var col2 = document.createElement("td");
+          var nameSpan = document.createElement("span");
+          nameSpan.innerHTML = symbols[i];
+          col2.appendChild(nameSpan);
+          row.appendChild(col1);
+          row.appendChild(col2);
+          tbody.appendChild(row);
+          console.log("dealing with ${i+1} row data", corMat[i]);
+        }
       }
     </script>
 
@@ -105,5 +129,14 @@
       结束日期:<input type="date" id="EndDate" value="2023-03-01" /><br />
       <input type="button" onclick="GetChangeData()" value="计算相关系数" />
     </div>
+    <table>
+      <thead>
+        <tr>
+          <th>指数名称</th>
+          <th>相关系数</th>
+        </tr>
+      </thead>
+      <tbody id="correlation-table-body"></tbody>
+    </table>
   </body>
 </html>

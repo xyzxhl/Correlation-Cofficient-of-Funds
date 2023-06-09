@@ -72,6 +72,7 @@ func GetCorData(sd string, ed string, sym string) pj.CorData {
 }
 
 func SendCorMat(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
 	sd, ok1 := c.GetQuery("sd")
 	ed, ok2 := c.GetQuery("ed")
 	sym, ok3 := c.GetQuery("sym")
@@ -86,12 +87,14 @@ func main() {
 	r := gin.Default()
 	r.LoadHTMLFiles("html/index.html")
 	r.StaticFile("/favicon.ico", "./favicon.ico")
+	r.StaticFile("/style.css", "./html/style.css")
 
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{})
 	})
 
 	r.GET("/IndicesList", func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
 		c.JSON(http.StatusOK, IndicesData)
 	})
 
