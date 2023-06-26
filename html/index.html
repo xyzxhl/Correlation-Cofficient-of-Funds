@@ -1,231 +1,233 @@
 <!DOCTYPE html>
 <html>
-   <head>
-      <meta charset="UTF-8">
-      <title>资产配置小工具</title>
-      <style>
-         body {
-            background-color: #f2f7fd;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-         }
-         h1 {
-            text-align: center;
-            color: #0B6FA4;
-            font-size: 48px;
-            font-weight: bold;
-         }
-         table {
-            border-collapse: collapse;
-            margin: 30px auto;
-            width: 80%;
-            background-color: #fff;
-            box-shadow: 0px 0px 10px #ccc;
-            border: 1px solid #ddd; /* 添加表格的边框 */
-         }
-         th, td {
-            padding: 10px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-            border-right: 1px solid #ddd; /* 添加单元格的右边框 */
-            background-color: #F5FAFE; /* 设置单元格的背景色 */
-         }
-         th {
-            background-color: #D4E9F9;
-            color: #0B6FA4;
-            border-top: 1px solid #ddd; /* 添加表头的上边框 */
-         }
-         tr:nth-child(even) {
-            background-color: #EFF8FF; /* 修改偶数行的背景色 */
-         }
-         td:last-child {
-            border-right: none; /* 最后一列的右边框不显示 */
-         }
-         td:hover {
-            background-color: #E4F3FF; /* 鼠标移到单元格上时的背景色 */
-         }
-         input[type="text"], input[type="date"], input[type="button"] {
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-            margin-right: 10px;
-            margin-bottom: 10px;
-         }
-         input[type="button"] {
-            background-color: #0B6FA4;
-            color: #fff;
-            cursor: pointer;
-         }
-         .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px #ccc;
-            padding: 30px;
-         }
-
-      </style>
-   </head>
-   <body>
-      <div class="container">
-         <h1>资产配置小工具</h1>
-         <div>
-            <input type="text" id="SN" placeholder="请输入基金的代码或名称" />
-            <input type="button" onclick="AddIndice()" value="添加" />
-         </div>
-         <table>
-            <thead>
-               <tr>
-                  <th>代码</th>
-                  <th>名称</th>
-                  <th>最早记录日期</th>
-                  <th>操作</th>
-               </tr>
-            </thead>
-            <tbody id="contain"></tbody>
-         </table>
-         <div>
-            起始日期:<input type="date" id="StartDate" value="2022-03-01" /><br />
-            结束日期:<input type="date" id="EndDate" value="2023-03-01" /><br />
-            <input type="button" onclick="GetChangeData()" value="计算相关系数" />
-         </div>
-         <table>
-            <thead>
-               <tr>
-
-               </tr>
-            </thead>
-            <tbody id="correlation-table-body"></tbody>
-         </table>
-         <script>
-            var IndicesList = new Array();
-            var SelectedIndices = new Array();
-            var httpRequest = new XMLHttpRequest();
-
-            function GetIndicesData() {
-                httpRequest.open("GET", "http://47.120.8.50/IndicesList", false);
-                httpRequest.send();
-                var json = httpRequest.responseText;
-                IndicesList = JSON.parse(json).indices;
-                for (var i = 0; i < IndicesList.length; i++) {
-                    IndicesList[i].earliest_date = IndicesList[i].earliest_date.substr(0, 10);
-                }
-            }
-
-            function AddIndice() {
-                if (SelectedIndices.length > 10) {
-                    return;
-                }
-                if (IndicesList.length == 0) {
-                    GetIndicesData();
-                }
-                var SN = document.getElementById("SN").value;
-                for (var i = 0; i < IndicesList.length; i++) {
-                    if (SN == IndicesList[i].name || SN == IndicesList[i].symbol) {
-                        for (var j = 0; j < SelectedIndices.length; j++) {
-                            if (IndicesList[i].symbol == SelectedIndices[j].symbol) {
-                                return;
-                            }
-                        }
-                        SelectedIndices.push(IndicesList[i]);
-                        UpdateIndicesShown();
-                        return;
-                    }
-                }
-            }
-
-            function DelInd(symbol) {
-                for (var i = 0; i < SelectedIndices.length; i++) {
-                    if (symbol == SelectedIndices[i].symbol) {
-                        SelectedIndices.splice(i, 1);
-                    }
-                }
-                UpdateIndicesShown();
-            }
-
-            function UpdateIndicesShown() {
-                var str = "";
-                for (var i = 0; i < SelectedIndices.length; i++) {
-                    str += "<tr>";
-                    for (var key in SelectedIndices[i]) {
-                        str += "<td>" + SelectedIndices[i][key] + "</td>";
-                    }
-                    str += '<td><a href="javascript:void(0);" onclick="DelInd(\'' +
-                        SelectedIndices[i].symbol +
-                        "')\">删除</a></td></tr>";
-                }
-                contain.innerHTML = str;
-            }
-
-            function GetChangeData() {
-                var sd = document.getElementById("StartDate").value;
-                var ed = document.getElementById("EndDate").value;
-                var symbols = "";
-                for (var i = 0; i < SelectedIndices.length; i++) {
-                    symbols += SelectedIndices[i].symbol;
-                    if (i != SelectedIndices.length - 1) {
-                        symbols += ",";
-                    }
-                }
-                var url =
-                    "http://47.120.8.50/CorMat?sd=" +
-                    sd +
-                    "&ed=" +
-                    ed +
-                    "&sym=" +
-                    symbols;
-                httpRequest.open("GET", url, false);
-                httpRequest.send();
-                var corData = JSON.parse(httpRequest.responseText);
-                FillCorrTable(symbols.split(","), corData);
-                console.log(corData)
-                console.log(corData.cor_mat[0])
-                console.log(corData.cor_mat[0][1]);
-            }
-
-            function FillCorrTable(symbolList, corData) {
-                var table = document.getElementById("correlation-table-body");
-                table.innerHTML = "";
-
-
-
-// 创建表头
-var headerRow = document.createElement("tr");
-var headerCell = document.createElement("th");
-headerCell.innerText = "";
-headerRow.appendChild(headerCell);
-for (var i = 0; i < symbolList.length; i++) {
-    headerCell = document.createElement("th");
-    headerCell.innerText = symbolList[i];
-    headerRow.appendChild(headerCell);
-}
-table.appendChild(headerRow);
-
-// 填充数据
-for (var i = 0; i < symbolList.length; i++) {
-    var row = document.createElement("tr");
-    var codeCell = document.createElement("td");
-    codeCell.innerText = symbolList[i];
-    row.appendChild(codeCell);
-    for (var j = 0; j < symbolList.length; j++) {
-        var cell = document.createElement("td");
-        if (i == j) {
-            cell.innerText = "-";
-        } else {
-            var index = i <= j ? (j * (j - 1) / 2 + i) : (i * (i - 1) / 2 + j);
-            var corr = corData.cor_mat[i][j];
-            cell.innerText = corr.toFixed(4);  // 保留4位小数
-        }
-        row.appendChild(cell);
-    }
-    table.appendChild(row);
-}
-
-            }
-         </script>
+  <head>
+    <meta charset="UTF-8" />
+    <title>资产配置小工具</title>
+    <style>
+      body {
+        background-color: #f2f7fd;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+      }
+      h1 {
+        text-align: center;
+        color: #0b6fa4;
+        font-size: 48px;
+        font-weight: bold;
+      }
+      table {
+        border-collapse: collapse;
+        margin: 30px auto;
+        width: 80%;
+        background-color: #fff;
+        box-shadow: 0px 0px 10px #ccc;
+        border: 1px solid #ddd; /* 添加表格的边框 */
+      }
+      th,
+      td {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+        border-right: 1px solid #ddd; /* 添加单元格的右边框 */
+        background-color: #f5fafe; /* 设置单元格的背景色 */
+      }
+      th {
+        background-color: #d4e9f9;
+        color: #0b6fa4;
+        border-top: 1px solid #ddd; /* 添加表头的上边框 */
+      }
+      tr:nth-child(even) {
+        background-color: #eff8ff; /* 修改偶数行的背景色 */
+      }
+      td:last-child {
+        border-right: none; /* 最后一列的右边框不显示 */
+      }
+      td:hover {
+        background-color: #e4f3ff; /* 鼠标移到单元格上时的背景色 */
+      }
+      input[type="text"],
+      input[type="date"],
+      input[type="button"] {
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+      input[type="button"] {
+        background-color: #0b6fa4;
+        color: #fff;
+        cursor: pointer;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0px 0px 10px #ccc;
+        padding: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>资产配置小工具</h1>
+      <div>
+        <input type="text" id="SN" placeholder="请输入基金的代码或名称" />
+        <input type="button" onclick="AddIndice()" value="添加" />
       </div>
-   </body>
+      <table>
+        <thead>
+          <tr>
+            <th>代码</th>
+            <th>名称</th>
+            <th>最早记录日期</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="contain"></tbody>
+      </table>
+      <div>
+        起始日期:<input type="date" id="StartDate" value="2022-03-01" /><br />
+        结束日期:<input type="date" id="EndDate" value="2023-03-01" /><br />
+        <input type="button" onclick="GetChangeData()" value="计算相关系数" />
+      </div>
+      <table>
+        <thead>
+          <tr></tr>
+        </thead>
+        <tbody id="correlation-table-body"></tbody>
+      </table>
+      <script>
+        var IndicesList = new Array();
+        var SelectedIndices = new Array();
+        var httpRequest = new XMLHttpRequest();
+
+        function GetIndicesData() {
+          httpRequest.open("GET", "http://47.120.8.50/IndicesList", false);
+          httpRequest.send();
+          var json = httpRequest.responseText;
+          IndicesList = JSON.parse(json).indices;
+          for (var i = 0; i < IndicesList.length; i++) {
+            IndicesList[i].earliest_date = IndicesList[i].earliest_date.substr(
+              0,
+              10
+            );
+          }
+        }
+
+        function AddIndice() {
+          if (SelectedIndices.length > 10) {
+            return;
+          }
+          if (IndicesList.length == 0) {
+            GetIndicesData();
+          }
+          var SN = document.getElementById("SN").value;
+          for (var i = 0; i < IndicesList.length; i++) {
+            if (SN == IndicesList[i].name || SN == IndicesList[i].symbol) {
+              for (var j = 0; j < SelectedIndices.length; j++) {
+                if (IndicesList[i].symbol == SelectedIndices[j].symbol) {
+                  return;
+                }
+              }
+              SelectedIndices.push(IndicesList[i]);
+              UpdateIndicesShown();
+              return;
+            }
+          }
+        }
+
+        function DelInd(symbol) {
+          for (var i = 0; i < SelectedIndices.length; i++) {
+            if (symbol == SelectedIndices[i].symbol) {
+              SelectedIndices.splice(i, 1);
+            }
+          }
+          UpdateIndicesShown();
+        }
+
+        function UpdateIndicesShown() {
+          var str = "";
+          for (var i = 0; i < SelectedIndices.length; i++) {
+            str += "<tr>";
+            for (var key in SelectedIndices[i]) {
+              str += "<td>" + SelectedIndices[i][key] + "</td>";
+            }
+            str +=
+              '<td><a href="javascript:void(0);" onclick="DelInd(\'' +
+              SelectedIndices[i].symbol +
+              "')\">删除</a></td></tr>";
+          }
+          contain.innerHTML = str;
+        }
+
+        function GetChangeData() {
+          var sd = document.getElementById("StartDate").value;
+          var ed = document.getElementById("EndDate").value;
+          var symbols = "";
+          for (var i = 0; i < SelectedIndices.length; i++) {
+            symbols += SelectedIndices[i].symbol;
+            if (i != SelectedIndices.length - 1) {
+              symbols += ",";
+            }
+          }
+          var url =
+            "http://47.120.8.50/CorMat?sd=" +
+            sd +
+            "&ed=" +
+            ed +
+            "&sym=" +
+            symbols;
+          httpRequest.open("GET", url, false);
+          httpRequest.send();
+          var corData = JSON.parse(httpRequest.responseText);
+          FillCorrTable(symbols.split(","), corData);
+          console.log(corData);
+          console.log(corData.cor_mat[0]);
+          console.log(corData.cor_mat[0][1]);
+        }
+
+        function FillCorrTable(symbolList, corData) {
+          var table = document.getElementById("correlation-table-body");
+          table.innerHTML = "";
+
+          // 创建表头
+          var headerRow = document.createElement("tr");
+          var headerCell = document.createElement("th");
+          headerCell.innerText = "";
+          headerRow.appendChild(headerCell);
+          for (var i = 0; i < symbolList.length; i++) {
+            headerCell = document.createElement("th");
+            headerCell.innerText = symbolList[i];
+            headerRow.appendChild(headerCell);
+          }
+          table.appendChild(headerRow);
+
+          // 填充数据
+          for (var i = 0; i < symbolList.length; i++) {
+            var row = document.createElement("tr");
+            var codeCell = document.createElement("td");
+            codeCell.innerText = symbolList[i];
+            row.appendChild(codeCell);
+            for (var j = 0; j < symbolList.length; j++) {
+              var cell = document.createElement("td");
+              if (i == j) {
+                cell.innerText = "-";
+              } else {
+                var index =
+                  i <= j ? (j * (j - 1)) / 2 + i : (i * (i - 1)) / 2 + j;
+                var corr = corData.cor_mat[i][j];
+                cell.innerText = corr.toFixed(4); // 保留4位小数
+              }
+              row.appendChild(cell);
+            }
+            table.appendChild(row);
+          }
+        }
+      </script>
+    </div>
+  </body>
 </html>

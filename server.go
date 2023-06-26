@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"math"
 	"net/http"
 	"server/db"
 	"server/pj"
@@ -37,8 +39,11 @@ func GetChangeMat(sd string, ed string, symbols []string, RawData map[string][]d
 }
 
 func CalVar(X []float32, Y []float32) float32 {
-	if len(X) != len(Y) || len(X) == 0 || len(Y) == 0 {
+	if len(X) != len(Y) {
 		return 1000
+	}
+	if len(X) == 0 {
+		return 1005
 	}
 	var sx, sy, sxy float32
 	n := float32(len(X))
@@ -61,10 +66,21 @@ func GetCorData(sd string, ed string, sym string) pj.CorData {
 	RawData, _ := db.CHRecordQuery(sd, ed, CorData.Symbols)
 	changeMat := GetChangeMat(sd, ed, CorData.Symbols, RawData)
 
+	for i, s := range CorData.Symbols {
+		CorData.CorMat[i][i] = CalVar(changeMat[s], changeMat[s])
+	}
+
 	for i, s1 := range CorData.Symbols {
 		for j, s2 := range CorData.Symbols {
-			CorData.CorMat[i][j] = CalVar(changeMat[s1], changeMat[s2])
-			CorData.CorMat[j][i] = CorData.CorMat[i][j]
+			if i < j {
+				tmp := float64(CalVar(changeMat[s1], changeMat[s2]))
+				fmt.Println(tmp)
+				if tmp < 200 {
+					tmp = tmp / math.Sqrt(float64(CorData.CorMat[i][i])*float64(CorData.CorMat[j][j]))
+				}
+				CorData.CorMat[i][j] = float32(tmp)
+				CorData.CorMat[j][i] = float32(tmp)
+			}
 		}
 	}
 
