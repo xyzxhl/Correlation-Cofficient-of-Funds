@@ -101,12 +101,19 @@ func main() {
 	Init()
 
 	r := gin.Default()
-	r.LoadHTMLFiles("html/index.html")
+	r.LoadHTMLGlob("html/*")
 	r.StaticFile("/favicon.ico", "./favicon.ico")
-	r.StaticFile("/style.css", "./html/style.css")
 
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{})
+	})
+
+	r.GET("/collection", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "collection.html", gin.H{})
+	})
+
+	r.GET("/toolbox", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "toolbox.html", gin.H{})
 	})
 
 	r.GET("/IndicesList", func(c *gin.Context) {

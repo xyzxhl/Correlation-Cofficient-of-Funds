@@ -69,15 +69,108 @@
         box-shadow: 0px 0px 10px #ccc;
         padding: 30px;
       }
+
+      /* 新增样式代码 */
+      .heatmap-table {
+        margin: 30px auto;
+        width: 80%;
+        background-color: #fff;
+        box-shadow: 0px 0px 10px #ccc;
+        border: 1px solid #ddd;
+        overflow: hidden;
+      }
+      .heatmap-table td {
+        background-color: #f5fafe;
+        text-align: center;
+      }
+      .heatmap-table td[data-value="-"] {
+        background-color: #ccc;
+      }
+      .heatmap-table td {
+        background-color: #f5fafe;
+        text-align: center;
+      }
+      .heatmap-table td[data-value="-"] {
+        background-color: #ccc;
+      }
+      .heatmap-table td {
+        transition: background-color 0.3s;
+      }
+      .heatmap-table td {
+        width: 40px; /* 设置单元格的宽度 */
+        height: 40px; /* 设置单元格的高度 */
+      }
+      .color-bar {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        margin-top: 20px;
+      }
+
+      .color-bar-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .color {
+        width: 40px;
+        height: 20px;
+      }
+
+      .label {
+        margin-top: 4px;
+        color: black;
+        font-size: 14px; /* 调整数字的字体大小 */
+      }
+
+      .error-message {
+        color: red;
+      }
+
+      /* 添加按钮样式 */
+      #toolboxButton {
+        padding: 10px;
+        border-radius: 4px;
+        background-color: #d4e9f9;
+        color: #0b6fa4;
+        font-size: 16px;
+        cursor: pointer;
+        margin-bottom: 10px;
+        border: none; /* 去掉按钮的边框 */
+        outline: none; /* 去掉按钮的选中状态边框 */
+        margin-left: 110px;
+      }
+
+      /* 添加按钮样式 */
+      #collectionButton {
+        padding: 10px;
+        border-radius: 4px;
+        background-color: #d4e9f9;
+        color: #0b6fa4;
+        font-size: 16px;
+        cursor: pointer;
+        margin-bottom: 10px;
+        border: none; /* 去掉按钮的边框 */
+        outline: none; /* 去掉按钮的选中状态边框 */
+        margin-left: 10px;
+      }
     </style>
   </head>
   <body>
+    <button id="toolboxButton">工具箱</button>
+
+    <button id="collectionButton">收藏</button>
+
+    <div id="collectionPage"></div>
+
     <div class="container">
-      <h1>资产配置小工具</h1>
+      <h1>资产配置小工具(●'◡'●)</h1>
       <div>
         <input type="text" id="SN" placeholder="请输入基金的代码或名称" />
         <input type="button" onclick="AddIndice()" value="添加" />
       </div>
+
       <table>
         <thead>
           <tr>
@@ -87,6 +180,7 @@
             <th>操作</th>
           </tr>
         </thead>
+
         <tbody id="contain"></tbody>
       </table>
       <div>
@@ -94,12 +188,78 @@
         结束日期:<input type="date" id="EndDate" value="2023-03-01" /><br />
         <input type="button" onclick="GetChangeData()" value="计算相关系数" />
       </div>
-      <table>
+      <input type="button" onclick="AddToCollection()" value="加入收藏" />
+
+      <div id="errorDiv" style="display: none; color: red"></div>
+
+      <table class="heatmap-table">
         <thead>
           <tr></tr>
         </thead>
         <tbody id="correlation-table-body"></tbody>
       </table>
+      <table class="heatmap-table">
+        <thead>
+          <tr>
+            <!-- 表头内容 -->
+          </tr>
+        </thead>
+        <tbody id="correlation-table-body"></tbody>
+      </table>
+
+      <div class="color-bar">
+        <div class="color-bar-item">
+          <div class="color" style="background-color: #bfefff"></div>
+          <div class="label">1.0 - 0.8</div>
+        </div>
+        <div class="color-bar-item">
+          <div class="color" style="background-color: #c6e2ff"></div>
+          <div class="label">0.8-0.6</div>
+        </div>
+        <div class="color-bar-item">
+          <div class="color" style="background-color: #d4e9ff"></div>
+          <div class="label">0.6 - 0.4</div>
+        </div>
+        <div class="color-bar-item">
+          <div class="color" style="background-color: #e1f0ff"></div>
+          <div class="label">0.4 - 0.2</div>
+        </div>
+        <div class="color-bar-item">
+          <div class="color" style="background-color: #edf7ff"></div>
+          <div class="label">0.2 - 0.01</div>
+        </div>
+
+        <div class="color-bar-item">
+          <div class="color" style="background-color: #ffebeb"></div>
+          <div class="label">0.01 ~ -0.2</div>
+        </div>
+
+        <div class="color-bar-item">
+          <div class="color" style="background-color: #ffdada"></div>
+          <div class="label">-0.2 ~ -0.4</div>
+        </div>
+
+        <div class="color-bar-item">
+          <div class="color" style="background-color: #ffc9c9"></div>
+          <div class="label">-0.4 ~ -0.6</div>
+        </div>
+
+        <div class="color-bar-item">
+          <div class="color" style="background-color: #ffb7b7"></div>
+          <div class="label">-0.6 ~ -0.8</div>
+        </div>
+
+        <div class="color-bar-item">
+          <div class="color" style="background-color: #ffa5a5"></div>
+          <div class="label">-0.8 ~ -1</div>
+        </div>
+
+        <div class="color-bar-item">
+          <div class="color" style="background-color: #ffffff"></div>
+          <div class="label"></div>
+        </div>
+      </div>
+
       <script>
         var IndicesList = new Array();
         var SelectedIndices = new Array();
@@ -126,6 +286,7 @@
             GetIndicesData();
           }
           var SN = document.getElementById("SN").value;
+
           for (var i = 0; i < IndicesList.length; i++) {
             if (SN == IndicesList[i].name || SN == IndicesList[i].symbol) {
               for (var j = 0; j < SelectedIndices.length; j++) {
@@ -135,6 +296,7 @@
               }
               SelectedIndices.push(IndicesList[i]);
               UpdateIndicesShown();
+
               return;
             }
           }
@@ -167,6 +329,24 @@
         function GetChangeData() {
           var sd = document.getElementById("StartDate").value;
           var ed = document.getElementById("EndDate").value;
+
+          //   if (sd > ed) { // 判断sd日期是否比ed日期晚
+          //  var errorDiv = document.getElementById("errorDiv");
+          //errorDiv.innerText = "起始日期不能晚于结束日期";
+          //errorDiv.style.color = "red";  // 设置报错提示文字为红色
+
+          // return;  // 结束函数运行
+          //  }
+          var errorDiv = document.getElementById("errorDiv");
+          if (sd > ed) {
+            errorDiv.innerText = "起始日期不能晚于结束日期";
+            errorDiv.style.display = "block";
+            errorDiv.classList.add("error-message");
+          } else {
+            errorDiv.style.display = "none";
+            errorDiv.classList.remove("error-message");
+          }
+
           var symbols = "";
           for (var i = 0; i < SelectedIndices.length; i++) {
             symbols += SelectedIndices[i].symbol;
@@ -191,17 +371,27 @@
         }
 
         function FillCorrTable(symbolList, corData) {
+          function GetSymbolName(symbol) {
+            for (var i = 0; i < SelectedIndices.length; i++) {
+              if (symbol == SelectedIndices[i].symbol) {
+                return SelectedIndices[i].name;
+              }
+            }
+            return "";
+          }
+
           var table = document.getElementById("correlation-table-body");
           table.innerHTML = "";
 
           // 创建表头
           var headerRow = document.createElement("tr");
           var headerCell = document.createElement("th");
-          headerCell.innerText = "";
+          headerCell.innerText = "代码 - 名称";
           headerRow.appendChild(headerCell);
           for (var i = 0; i < symbolList.length; i++) {
             headerCell = document.createElement("th");
-            headerCell.innerText = symbolList[i];
+            headerCell.innerText =
+              symbolList[i] + " - " + GetSymbolName(symbolList[i]);
             headerRow.appendChild(headerCell);
           }
           table.appendChild(headerRow);
@@ -210,22 +400,85 @@
           for (var i = 0; i < symbolList.length; i++) {
             var row = document.createElement("tr");
             var codeCell = document.createElement("td");
-            codeCell.innerText = symbolList[i];
+
+            codeCell.innerText =
+              symbolList[i] + " - " + GetSymbolName(symbolList[i]);
             row.appendChild(codeCell);
+
             for (var j = 0; j < symbolList.length; j++) {
               var cell = document.createElement("td");
               if (i == j) {
                 cell.innerText = "-";
+                cell.setAttribute("data-value", "-"); // 设置data-value属性为"-"
+                cell.classList.add("heatmap-table"); // 添加heatmap-table类名
               } else {
                 var index =
                   i <= j ? (j * (j - 1)) / 2 + i : (i * (i - 1)) / 2 + j;
+
                 var corr = corData.cor_mat[i][j];
                 cell.innerText = corr.toFixed(4); // 保留4位小数
+                cell.setAttribute("data-value", corr.toFixed(4)); // 设置data-value属性为相关系数的值
+                cell.style.backgroundColor = getColorForValue(corr); // 根据相关系数的值设置背景颜色
+                cell.style.transition = "background-color 0.3s"; // 添加过渡效果
               }
               row.appendChild(cell);
             }
             table.appendChild(row);
           }
+          function getColorForValue(value) {
+            // 根据相关系数的范围来决定颜色
+            if (value >= 0.8 && value <= 1) {
+              return "#BFEFFF"; // 淡蓝色
+            } else if (value >= 0.6 && value < 0.8) {
+              return "#C6E2FF"; // 浅蓝色
+            } else if (value >= 0.4 && value < 0.6) {
+              return "#D4E9FF"; // 亮蓝色
+            } else if (value >= 0.2 && value < 0.4) {
+              return "#E1F0FF"; // 淡钢蓝色
+            } else if (value >= 0.01 && value < 0.2) {
+              return "#EDF7FF"; // 浅蓝灰色
+            } else if (value >= -0.2 && value < 0.01) {
+              return "#FFEBEB"; // 浅红色
+            } else if (value >= -0.4 && value < -0.2) {
+              return "#FFDADA"; // 亮红色
+            } else if (value >= -0.6 && value < -0.4) {
+              return "#FFC9C9"; // 深红色
+            } else if (value >= -0.8 && value < -0.6) {
+              return "#FFB7B7"; // 红褐色
+            } else if (value >= -1 && value < -0.8) {
+              return "#FFA5A5"; // 深红褐色
+            } else {
+              return "#FFFFFF"; // 白色
+            }
+          }
+        }
+
+        document
+          .getElementById("toolboxButton")
+          .addEventListener("click", function () {
+            window.location.href = "http://47.120.8.50/toolbox";
+          });
+        document
+          .getElementById("collectionButton")
+          .addEventListener("click", function () {
+            window.location.href = "http://47.120.8.50/collection";
+          });
+
+        function AddToCollection() {
+          // 获取热力图表格的HTML代码
+          var tableHtml = document.getElementById(
+            "correlation-table-body"
+          ).innerHTML;
+
+          // 从localStorage中获取已保存的表格数组
+          var savedTables =
+            JSON.parse(localStorage.getItem("savedTables")) || [];
+
+          // 将当前表格HTML添加到数组中
+          savedTables.push(tableHtml);
+
+          // 将更新后的表格数组保存回localStorage中
+          localStorage.setItem("savedTables", JSON.stringify(savedTables));
         }
       </script>
     </div>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>收藏页面</title>
+  <style>
+    body {
+      background-color: #f5f5f5;
+      color: #333;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+    
+    .container {
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      border-radius: 8px;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #0B6FA4;
+      font-size: 48px;
+      font-weight: bold;
+    }
+    
+    table {
+      margin: 30px auto;
+      width: 80%;
+      background-color: #fff;
+      box-shadow: 0px 0px 10px #ccc;
+      border: 1px solid #ddd;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+      border-right: 1px solid #ddd;
+      background-color: #F5FAFE;
+      word-wrap: break-word;
+      height: 40px; /* 设置固定的高度 */
+    }
+ th {
+      background-color: #D4E9F9;
+      color: #0B6FA4;
+      border-top: 1px solid #ddd;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #EFF8FF;
+    }
+    
+    td:last-child {
+      border-right: none;
+    }
+    
+    td:hover {
+      background-color: #E4F3FF;
+    }
+
+    .heatmap-table {
+      margin: 30px auto;
+      width: 80%;
+      background-color: #fff;
+      box-shadow: 0px 0px 10px #ccc;
+      border: 1px solid #ddd;
+      overflow: hidden;
+    }
+    
+    .heatmap-table td {
+      background-color: #F5FAFE;
+      text-align: center;
+      transition: background-color 0.3s;
+      width: 40px;
+      height: 40px;
+    }
+    
+    .heatmap-table td[data-value="-"] {
+      background-color: #ccc;
+    }
+    
+    .color-bar {
+      display: flex;
+      justify-content: space-evenly;
+      align-items: center;
+      margin-top: 20px;
+    }
+    
+    .color-bar-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .color {
+      width: 40px;
+      height: 20px;
+    }
+    
+    .label {
+      margin-top: 4px;
+      color: black;
+      font-size: 14px;
+    }
+    
+    .error-message {
+      color: red;
+    }
+    
+    /* 添加按钮样式 */
+    #toolboxButton,
+    #collectionButton {
+      padding: 10px;
+      border-radius: 4px;
+      background-color: #D4E9F9;
+      color: #0B6FA4;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      border: none;
+      outline: none;
+      margin-left: 10px;
+    }
+         
+body {
+            background-color: #f2f7fd;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+         }
+         h1 {
+            text-align: center;
+            color: #0B6FA4;
+            font-size: 48px;
+            font-weight: bold;
+         }
+         table {
+            border-collapse: collapse;
+            margin: 30px auto;
+            width: 80%;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px #ccc;
+            border: 1px solid #ddd; /* 添加表格的边框 */
+         }
+         th, td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            border-right: 1px solid #ddd; /* 添加单元格的右边框 */
+            background-color: #F5FAFE; /* 设置单元格的背景色 */
+         }
+         th {
+            background-color: #D4E9F9;
+            color: #0B6FA4;
+            border-top: 1px solid #ddd; /* 添加表头的上边框 */
+         }
+         tr:nth-child(even) {
+            background-color: #EFF8FF; /* 修改偶数行的背景色 */
+         }
+         td:last-child {
+            border-right: none; /* 最后一列的右边框不显示 */
+         }
+         td:hover {
+            background-color: #E4F3FF; /* 鼠标移到单元格上时的背景色 */
+         }
+         input[type="text"], input[type="date"], input[type="button"] {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+         }
+         input[type="button"] {
+            background-color: #0B6FA4;
+            color: #fff;
+            cursor: pointer;
+         }
+         .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px #ccc;
+            padding: 30px;
+         }
+
+         /* 新增样式代码 */
+         .heatmap-table {
+            margin: 30px auto;
+            width: 80%;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px #ccc;
+            border: 1px solid #ddd;
+            overflow: hidden;
+         }
+         .heatmap-table td {
+            background-color: #F5FAFE;
+            text-align: center;
+         }
+         .heatmap-table td[data-value="-"] {
+            background-color: #ccc;
+         }
+.heatmap-table td {
+    background-color: #F5FAFE;
+    text-align: center;
+}
+.heatmap-table td[data-value="-"] {
+    background-color: #ccc;
+}
+.heatmap-table td {
+  transition: background-color 0.3s;
+
+}
+.heatmap-table td {
+  width: 40px; /* 设置单元格的宽度 */
+  height: 40px; /* 设置单元格的高度 */
+}
+.color-bar {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.color-bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  //margin-right: 1px;
+}
+
+.color {
+  width: 40px;
+  height: 20px;
+}
+
+.label {
+  margin-top: 4px;
+color: black;
+font-size: 14px; /* 调整数字的字体大小 */
+}
+
+.error-message {
+  color: red;
+
+
+}
+
+      /* 添加按钮样式 */
+      #toolboxButton {
+        padding: 10px;
+        border-radius: 4px;
+        background-color: #D4E9F9;
+        color: #0B6FA4;
+        font-size: 16px;
+        cursor: pointer;
+        margin-bottom: 10px;
+        border: none; /* 去掉按钮的边框 */
+        outline: none; /* 去掉按钮的选中状态边框 */
+margin-left: 110px;
+      }
+
+      /* 添加按钮样式 */
+      #collectionButton {
+        padding: 10px;
+        border-radius: 4px;
+        background-color: #D4E9F9;
+        color: #0B6FA4;
+        font-size: 16px;
+        cursor: pointer;
+        margin-bottom: 10px;
+        border: none; /* 去掉按钮的边框 */
+        outline: none; /* 去掉按钮的选中状态边框 */
+margin-left: 10px;
+      }
+
+
+
+  </style>
+</head>
+
+<div class="container">
+  <h1>收藏的热力图表格</h1>
+  <div id="collectionContainer">
+    <!-- 这里将显示热力图表格 -->
+    <table id="correlation-table-body">
+      <!-- 表格内容将会通过JavaScript动态填充 -->
+    </table>
+  </div>
+</div>
+
+
+
+
+
+  <script>
+
+  // 从localStorage中获取表格数组
+  var savedTables = JSON.parse(localStorage.getItem("savedTables")) || [];
+
+  // 遍历表格数组，显示每个表格
+  savedTables.forEach(function (tableHtml) {
+    var table = document.createElement("table");
+    table.innerHTML = tableHtml;
+
+    document.getElementById("correlation-table-body").appendChild(table);
+  });
+  </script>
+</body>
+
+</html>

@@ -1,9 +1,0 @@
-#correlation-table-body {
-  max-height: 300px;
-  overflow-y: scroll;
-}
-
-#correlation-table-body tr span {
-  display: inline-block;
-  text-align: left;
-}
